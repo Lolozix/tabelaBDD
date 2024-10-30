@@ -1,5 +1,19 @@
-const lolozix = require("pg") ()
+const { Pool } = require("pg");
 
-const lolo = lolozix("postgres://postgres:1402@localhost:5432/lorrana")
+const pool = new Pool({
+    connectionString: "postgres://postgres:aluno@localhost:5432/lorranalinda"
+  }
+);
 
-lolo.query(*SELECT 1 + 1 AS result*)
+async function listarLolo() {
+  try {
+    const result = await pool.query("SELECT * FROM lolo");
+    console.log("Usuários:", result.rows);
+  }
+
+  catch (error) {
+    console.error("Erro ao listar usuários:", error);
+  }
+}
+
+listarLolo();
