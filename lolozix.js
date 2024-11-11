@@ -1,54 +1,32 @@
-const express = require("express");
-const { Pool } = require("pg");
-const cors = require("cors");
-
+const express = require('express');
+const { Pool } = require('pg');
 const app = express();
-const port = 5001;
-
-// Configuração da conexão com o banco de dados
-const pool = new Pool({
-  connectionString: "postgres://postgres:1402@localhost:5432/lorrana",
-});
-
-// Middleware
+const port = 8080;
 app.use(express.json());
-app.use(cors());
 
-// Função para conectar ao banco de dados
-const connectToDatabase = async () => {
-  try {
-    await pool.connect();
-    console.log('Conexão com o banco de dados estabelecida com sucesso!');
-  } catch (err) {
-    console.error('Erro ao conectar ao banco de dados', err);
-    process.exit(1); // Encerra o servidor se não conseguir conectar ao banco de dados
-  }
-};
+//Aki começa a conexão do banco de dados com o expresse com a senha do meu postgre,usuário,localhost e o banco 
+const pool = new Pool({
+  connectionString: "postgres://postgres:aluno@localhost:5432/lorrana2A",
+})
 
-// Rota para buscar alunos
-app.get("/alunos", async (req, res) => {
+// Rota para a raiz
+app.get('/usuarios', (req, res) => {
+  res.send('Rodando o BACKEND com BANCO DE DADOS');
+});
+
+// Rota para listar usuários
+app.get('/', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM alunos');
-    res.status(200).json(rows);
+      //O metodo query apresenta os dados do banco,ele executa comandos SQL no exemplo utilizei o * para listar todos os dados dos usuários
+    const result = await pool.query('SELECT * FROM projeto_bancodedados');
+    res.json(result.rows);
   } catch (error) {
-    console.error("Erro ao buscar dados da tabela alunos:", error);
-    res.status(400).json({ error: error.message });
+    console.error('Erro ao buscar dados, é agora Silver:', error);
+    res.status(500).json({ error: 'Erro ao buscar dados, é agora Silver' });
   }
 });
 
-// Função para encerrar a conexão com o banco ao sair
-const closeDatabaseConnection = async () => {
-  await pool.end();
-  console.log('Conexão com o banco de dados encerrada.');
-  process.exit(0);
-};
-
-// Conectando ao banco de dados e iniciando o servidor
-connectToDatabase().then(() => {
-  app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-  });
+// Inicia o servidor
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
-
-// Encerrando a conexão ao receber sinal de interrupção
-process.on('SIGINT', closeDatabaseConnection);
